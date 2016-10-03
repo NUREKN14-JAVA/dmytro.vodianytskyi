@@ -1,13 +1,5 @@
 Testsuite: kh146vodyanytskyi.UserTest
-Tests run: 2, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0,139 sec
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0,112 sec
 
-Testcase: testGetFullName took 0,019 sec
-Testcase: testGetAge took 0,007 sec
-	FAILED
-expected:<12> but was:<20>
-junit.framework.AssertionFailedError: expected:<12> but was:<20>
-	at kh146vodyanytskyi.UserTest.testGetAge(UserTest.java:36)
-	at org.eclipse.ant.internal.launching.remote.EclipseDefaultExecutor.executeTargets(EclipseDefaultExecutor.java:36)
-	at org.eclipse.ant.internal.launching.remote.InternalAntRunner.run(InternalAntRunner.java:453)
-	at org.eclipse.ant.internal.launching.remote.InternalAntRunner.main(InternalAntRunner.java:140)
-
+Testcase: testGetFullName took 0,028 sec
+Testcase: testGetAge took 0,002 sec

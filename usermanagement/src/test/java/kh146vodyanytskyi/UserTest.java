@@ -33,7 +33,11 @@ public class UserTest extends TestCase{
 	
 	public void testGetAge(){
 		user.setDateOfBirthd(dateOfBirthd);
-		assertEquals(2008 - 1996, user.getAge());
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(new Date());
+		int currentYear = calendar.get(Calendar.YEAR);
+		assertEquals(currentYear - 1996, user.getAge());
+
 	}
 	
 }
