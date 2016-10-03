@@ -30,4 +30,7 @@
 			<test name="kh146vodyanytskyi.UserTest"></test>
 		</junit>
 	</target>
+	<presetdef name="javac">
+	    <javac includeantruntime="false" />
+	  </presetdef>
 </project>
