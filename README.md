@@ -1,5 +1,5 @@
 # dmytro.vodianytskyi
 
-Hello, kid!!!
+Hello, guys!!!
 
 Course is an good training in coding WEB-app!!!
