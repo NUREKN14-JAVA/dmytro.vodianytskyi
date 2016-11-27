@@ -20,8 +20,9 @@ class HsqldbUserDao implements UserDao {
 	private static final String INSERT_QUERY = "INSERT INTO users (firstname, lastname, dateofbirth) VALUES (?, ?, ?)";
 	private static final String UPDATE_USERS = "UPDATE users SET firstname=?, lastname=?, dateofbirth=? WHERE id=?";
 	private static final String DELETE_FROM_USERS = "DELETE FROM users WHERE id = ?";
-	private static final String SELECT_ID =  "SELECT id, firstname, lastname, dateofbirth FROM users WHERE id=?";
-	
+	private static final String SELECT_BY_ID = "SELECT id, firstname, lastname, dateofbirth FROM users WHERE id=?";
+	private static final String SELECT_BY_NAMES = "SELECT id, firstname, lastname, dateofbirth FROM users WHERE firstname=? AND lastname=?";
+
 	private ConnectionFactory connectionFactory;
 
 	public HsqldbUserDao() {
@@ -30,7 +31,7 @@ class HsqldbUserDao implements UserDao {
 	public HsqldbUserDao(ConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
 	}
-	
+
 	public ConnectionFactory getConnectionFactory() {
 		return connectionFactory;
 	}
@@ -38,8 +39,6 @@ class HsqldbUserDao implements UserDao {
 	public void setConnectionFactory(ConnectionFactory connectionFactory) {
 		this.connectionFactory = connectionFactory;
 	}
-
-
 
 	@Override
 	public User create(User user) throws DatabaseException {
@@ -50,12 +49,12 @@ class HsqldbUserDao implements UserDao {
 			statement.setString(2, user.getLastName());
 			statement.setDate(3, new Date(user.getDateOfBirthd().getTime()));
 			int n = statement.executeUpdate();
-			if (n != 1){
+			if (n != 1) {
 				throw new DatabaseException("Number of the inserted rows:" + n);
 			}
 			CallableStatement callableStatement = connection.prepareCall("call IDENTITY()");
 			ResultSet keys = callableStatement.executeQuery();
-			if(keys.next()){
+			if (keys.next()) {
 				user.setId(new Long(keys.getLong(1)));
 			}
 			keys.close();
@@ -73,101 +72,98 @@ class HsqldbUserDao implements UserDao {
 	@Override
 	public void update(User user) throws DatabaseException {
 		Connection connection = connectionFactory.createConnection();
-		
+
 		// Get id to work with
-        Long id = user.getId();
-        
-        
-        // convert it into a prepared statement
-        PreparedStatement preparedStatement;
-        
-        try {
-            
-            preparedStatement = connection.prepareStatement(UPDATE_USERS);
-            preparedStatement.setString(1, user.getFirstName());
-            preparedStatement.setString(2, user.getLastName());
-            preparedStatement.setDate(3, new Date(user.getDateOfBirthd().getTime()));
-            preparedStatement.setLong(4, id);
-            
-            // execute query and check that it worked
-            int numberOfRowsUpdated = preparedStatement.executeUpdate();
-            preparedStatement.close();
-            connection.close();
-            
-            if (numberOfRowsUpdated!=1) {
-                throw new DatabaseException("Number of the inserted rows: " + numberOfRowsUpdated); 
-            }
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+		Long id = user.getId();
+
+		// convert it into a prepared statement
+		PreparedStatement preparedStatement;
+
+		try {
+
+			preparedStatement = connection.prepareStatement(UPDATE_USERS);
+			preparedStatement.setString(1, user.getFirstName());
+			preparedStatement.setString(2, user.getLastName());
+			preparedStatement.setDate(3, new Date(user.getDateOfBirthd().getTime()));
+			preparedStatement.setLong(4, id);
+
+			// execute query and check that it worked
+			int numberOfRowsUpdated = preparedStatement.executeUpdate();
+			preparedStatement.close();
+			connection.close();
+
+			if (numberOfRowsUpdated != 1) {
+				throw new DatabaseException("Number of the inserted rows: " + numberOfRowsUpdated);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 
 	@Override
 	public void delete(User user) throws DatabaseException {
 		// connect to the database
-        Connection connection = connectionFactory.createConnection();
-        
-        
-        Long id = user.getId();
-        PreparedStatement preparedStatement;
-        
-        try {
-            preparedStatement = connection.prepareStatement(DELETE_FROM_USERS);
-            preparedStatement.setLong(1, id);
-            int n = preparedStatement.executeUpdate();
-            if (n != 1) {
-                throw new DatabaseException("Delete failed: " + n + " rows were deleted");
-            }
-            preparedStatement.close();
-            connection.close();
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+		Connection connection = connectionFactory.createConnection();
 
+		Long id = user.getId();
+		PreparedStatement preparedStatement;
+
+		try {
+			preparedStatement = connection.prepareStatement(DELETE_FROM_USERS);
+			preparedStatement.setLong(1, id);
+			int n = preparedStatement.executeUpdate();
+			if (n != 1) {
+				throw new DatabaseException("Delete failed: " + n + " rows were deleted");
+			}
+			preparedStatement.close();
+			connection.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 
 	}
 
 	@Override
 	public User find(Long id) throws DatabaseException {
 		Connection connection = connectionFactory.createConnection();
-        PreparedStatement preparedStatement;
-        User user = null;
-        
-        try {
-            
-            preparedStatement = connection.prepareStatement(SELECT_ID);
-            preparedStatement.setLong(1, id);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (!resultSet.next()) {
-                throw new DatabaseException("User with id" + id + " is not found");
-            }
-            user = new User();
-            user.setId(resultSet.getLong(1));
-            user.setFirstName(resultSet.getString(2));
-            user.setLastName(resultSet.getString(3));
-            user.setDateOfBirthd(resultSet.getDate(4));
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
-            
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return user;
+		PreparedStatement preparedStatement;
+		User user = null;
+
+		try {
+
+			preparedStatement = connection.prepareStatement(SELECT_BY_ID);
+			preparedStatement.setLong(1, id);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			if (!resultSet.next()) {
+				throw new DatabaseException("User with id" + id + " is not found");
+			}
+			user = new User();
+			user.setId(resultSet.getLong(1));
+			user.setFirstName(resultSet.getString(2));
+			user.setLastName(resultSet.getString(3));
+			user.setDateOfBirthd(resultSet.getDate(4));
+			resultSet.close();
+			preparedStatement.close();
+			connection.close();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return user;
 	}
 
 	@Override
 	public Collection findAll() throws DatabaseException {
 		Collection result = new LinkedList();
-		
+
 		try {
 			Connection connection = connectionFactory.createConnection();
 			Statement statement = connection.createStatement();
 			ResultSet resultSet = statement.executeQuery(SELECT_ALL_QUERY);
-			while(resultSet.next()){
+			while (resultSet.next()) {
 				User user = new User();
 				user.setId(new Long(resultSet.getLong(1)));
 				user.setFirstName(resultSet.getString(2));
@@ -175,7 +171,33 @@ class HsqldbUserDao implements UserDao {
 				user.setDateOfBirthd(resultSet.getDate(4));
 				result.add(user);
 			}
-		}catch (DatabaseException e){
+		} catch (DatabaseException e) {
+			throw e;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+		return result;
+	}
+
+	public Collection find(String firstName, String lastName) throws DatabaseException {
+		Collection result = new LinkedList();
+
+		try {
+			Connection connection = connectionFactory.createConnection();
+			PreparedStatement preparedStatement;
+			preparedStatement = connection.prepareStatement(SELECT_BY_NAMES);
+			preparedStatement.setString(1, firstName);
+			preparedStatement.setString(1, lastName);
+			ResultSet resultSet = preparedStatement.executeQuery();
+			while (resultSet.next()) {
+				User user = new User();
+				user.setId(new Long(resultSet.getLong(1)));
+				user.setFirstName(resultSet.getString(2));
+				user.setLastName(resultSet.getString(3));
+				user.setDateOfBirthd(resultSet.getDate(4));
+				result.add(user);
+			}
+		} catch (DatabaseException e) {
 			throw e;
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
