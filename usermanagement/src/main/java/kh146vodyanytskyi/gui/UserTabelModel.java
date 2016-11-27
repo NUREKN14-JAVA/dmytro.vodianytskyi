@@ -10,7 +10,7 @@ import kh146vodyanytskyi.User;
 
 public class UserTabelModel extends AbstractTableModel {
 
-	private static final String[] COLUMN_NAMES = { "ID", "Имя", "Фамилия" };
+	private static final String[] COLUMN_NAMES = { "ID", "РРјСЏ", "Р¤Р°РјРёР»РёСЏ" };
 	private static final Class[] COLUMN_CLASSES = {Long.class, String.class, String.class};
 	private List users = null;
 

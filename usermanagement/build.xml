@@ -1,7 +1,7 @@
 <project name="usermanagement" basedir="." default="test">
 	
 	<property name="test-java-dir" value="${basedir}/src/test/java"/>
-    <property name="test-resources-dir" value="${basedir}/src/test/resources"/>   
+    <property name="test-resources-dir" value="${basedir}/src/test/resources"/>
 	
 	<property name="main-java-dir" value="${basedir}/src/main/java"/>
     <property name="main-webapp-dir" value="${basedir}/src/main/webapp"/>
@@ -30,13 +30,27 @@
 	</target>	
 	
 	<target name="compile" depends="init">
-		<javac srcdir="${main-java-dir}" destdir="${classes-dir}">
+		<javac srcdir="${main-java-dir}" destdir="${classes-dir}" includeantruntime="false">
              <classpath>
                     <fileset dir="${lib-dir}"/>
                 </classpath>
             </javac>
         <copy todir="${classes-dir}">
             <fileset dir="${main-resources-dir}">
+                <include name="**/*.properties"/>
+                <include name="**/*.xml"/>   
+            </fileset>
+        </copy>      
+	</target>
+	
+	<target name="test-compile" depends="compile">
+		<javac srcdir="${test-java-dir}" destdir="${classes-dir}">
+            <classpath>
+                <fileset dir="${lib-dir}"/>
+            </classpath>
+        </javac>
+        <copy todir="${classes-dir}">
+            <fileset dir="${test-resources-dir}">
                 <include name="**/*.properties"/>
                 <include name="**/*.xml"/>   
             </fileset>
@@ -80,19 +94,7 @@
         </war>
     </target>   
 	
-	<target name="test-compile" depends="compile">
-		<javac srcdir="${test-java-dir}" destdir="${classes-dir}">
-            <classpath>
-                <fileset dir="${lib-dir}"/>
-            </classpath>
-        </javac>
-        <copy todir="${classes-dir}">
-            <fileset dir="${test-resources-dir}">
-                <include name="**/*.properties"/>
-                <include name="**/*.xml"/>   
-            </fileset>
-        </copy>      
-	</target>
+
 	
 	<target name="test" depends="test-compile">
         <mkdir dir="${test-result-dir}"/>      
